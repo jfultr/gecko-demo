@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Synthetic warehouse fixture preview</title>
+  <desc id="desc">A dark warehouse aisle illustration used as a video poster.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#161d24"/><stop offset="1" stop-color="#080b0f"/></linearGradient>
+    <linearGradient id="floor" x1="0" x2="1"><stop stop-color="#141b20"/><stop offset=".5" stop-color="#263037"/><stop offset="1" stop-color="#11171c"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="640" cy="520" rx="280" ry="110" fill="#61a8ff" opacity=".08" filter="url(#glow)"/>
+  <path d="M0 160h270l250 560H0zM1280 160h-270L760 720h520z" fill="#0d1217"/>
+  <g fill="#222b31" stroke="#39444b" stroke-width="4">
+    <path d="M48 198h208v84H48zM72 306h230v92H72zM96 424h256v104H96z"/>
+    <path d="M1024 198h208v84h-208zM978 306h230v92H978zM928 424h256v104H928z"/>
+  </g>
+  <path d="M0 720L468 326h344l468 394z" fill="url(#floor)"/>
+  <path d="M547 720l62-394h62l62 394" fill="none" stroke="#f1b94f" stroke-width="7" opacity=".55"/>
+  <g fill="#cdd7dc" opacity=".9"><rect x="514" y="122" width="252" height="8" rx="4"/><rect x="555" y="198" width="170" height="7" rx="3.5"/></g>
+  <g transform="translate(788 434)"><rect width="110" height="74" rx="8" fill="#e1aa3d"/><rect x="70" y="-54" width="11" height="62" fill="#87939b"/><rect x="80" y="-54" width="55" height="8" fill="#87939b"/><circle cx="23" cy="78" r="19" fill="#07090b"/><circle cx="88" cy="78" r="19" fill="#07090b"/></g>
+  <g transform="translate(540 372)" fill="#8dd5bb"><circle cx="18" cy="16" r="16"/><path d="M8 38h20l13 86H-5z"/></g>
+  <g font-family="Arial, sans-serif" fill="#e9eef1"><text x="50" y="65" font-size="22" font-weight="700" letter-spacing="3">FIXTURE PREVIEW</text><text x="50" y="94" font-size="15" fill="#83909a">Synthetic warehouse walkthrough · 60 seconds</text></g>
+</svg>
