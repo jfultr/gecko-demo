@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "video": {
+    "video_id": "0c8fbe04-c2e5-4768-a703-10506d4c89e5",
+    "filename": "warehouse_walkthrough.mp4",
+    "source_url": "/api/v1/videos/0c8fbe04-c2e5-4768-a703-10506d4c89e5/source",
+    "duration_seconds": 60.0,
+    "width": 1920,
+    "height": 1080
+  },
+  "generated_at": "2026-09-29T09:00:00Z",
+  "score_label": "semantic_similarity",
+  "score_range": [0, 100],
+  "preset": {
+    "preset_id": "warehouse-hazards-v1",
+    "label": "Warehouse hazard cues",
+    "positive_prompts": [
+      "A person standing close to a moving forklift",
+      "An object obstructing a warehouse walkway"
+    ],
+    "negative_prompts": [
+      "An unobstructed warehouse walkway"
+    ]
+  },
+  "samples": [
+    { "timestamp_seconds": 0.0, "score": 12.0 },
+    { "timestamp_seconds": 5.0, "score": 16.0 },
+    { "timestamp_seconds": 10.0, "score": 25.0 },
+    { "timestamp_seconds": 15.0, "score": 47.0 },
+    { "timestamp_seconds": 20.0, "score": 82.0 },
+    { "timestamp_seconds": 25.0, "score": 45.0 },
+    { "timestamp_seconds": 30.0, "score": 21.0 },
+    { "timestamp_seconds": 35.0, "score": 37.0 },
+    { "timestamp_seconds": 40.0, "score": 68.0 },
+    { "timestamp_seconds": 45.0, "score": 39.0 },
+    { "timestamp_seconds": 50.0, "score": 19.0 },
+    { "timestamp_seconds": 55.0, "score": 14.0 },
+    { "timestamp_seconds": 60.0, "score": 11.0 }
+  ],
+  "peaks": [
+    {
+      "event_id": "peak-000004",
+      "timestamp_seconds": 20.0,
+      "score": 82.0,
+      "level": "high",
+      "frame": {
+        "frame_id": "frame-000004",
+        "timestamp_seconds": 20.0,
+        "image_url": "/api/v1/videos/0c8fbe04-c2e5-4768-a703-10506d4c89e5/frames/frame-000004"
+      },
+      "prompt": "A person standing close to a moving forklift"
+    },
+    {
+      "event_id": "peak-000008",
+      "timestamp_seconds": 40.0,
+      "score": 68.0,
+      "level": "medium",
+      "frame": {
+        "frame_id": "frame-000008",
+        "timestamp_seconds": 40.0,
+        "image_url": "/api/v1/videos/0c8fbe04-c2e5-4768-a703-10506d4c89e5/frames/frame-000008"
+      },
+      "prompt": "An object obstructing a warehouse walkway"
+    }
+  ]
+}
