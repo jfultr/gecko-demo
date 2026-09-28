@@ -30,7 +30,9 @@ APP_DATA_DIR/
               <frame-id>.jpg
             clips/                # optional derived clips
               <clip-id>.mp4
-            embeddings/           # implementation format + model metadata
+            embeddings/
+              vectors.npz         # retained frame vectors and timestamps
+              metadata.json       # encoder and preprocessing provenance
 ```
 
 The raw source is immutable after the upload is accepted. Files in `result/` are
@@ -38,10 +40,12 @@ derived from that source and may be regenerated. The manifest is the frontend's
 versioned view of a completed result, with `schema_version: "1.0"`. `scores.v1.json`
 holds the canonical series for processing/rebuilds; the manifest copies the samples
 needed by the player. Evidence frames and optional clips are separate media files.
-Embeddings are separate from scores and the manifest because their format and
-retention can change with the model. Record the embedding model identifier and
-version beside any retained vectors. ROB-14 will settle whether completed embeddings
-are retained or discarded after manifest publication.
+Embeddings are separate from scores and the manifest. The MVP retains them after
+publication so new prompts can be scored without decoding the source again.
+`metadata.json` records the encoder ID and revision, preprocessing revision,
+vector dimension, dtype, and normalization convention. Re-scoring must reject
+incompatible vectors. Sampling, scoring, and worker choices are specified in
+`docs/architecture.md`.
 
 Use a temporary upload in `staging/` and an atomic move into `source/` before
 committing a queued job. Build all derived files in `work/`; validate the final
@@ -57,7 +61,7 @@ The minimum records are:
 | Record | Fields | Purpose |
 | --- | --- | --- |
 | `videos` | `video_id` (UUID primary key), original filename, safe source relative path, upload time, media probe fields (duration, width, height) | Maps a public video ID to its immutable source. The original filename is display metadata only. |
-| `jobs` | `job_id` (UUID primary key), `video_id` (foreign key), status, progress percent (nullable), created/updated times, started/finished times (nullable), error code/message/retryable (nullable), result relative path (nullable) | Persists processing state and the published result. For the MVP, one upload creates one video and one job. |
+| `jobs` | `job_id` (UUID primary key), `video_id` (foreign key), status, attempt count, progress percent (nullable), created/updated times, started/finished times (nullable), error code/message/retryable (nullable), result relative path (nullable) | Persists processing state and the published result. For the MVP, one upload creates one video and one job. |
 
 All timestamps are UTC. Store relative paths only and join them to the configured
 data root after validating that the resolved path remains inside the expected video
@@ -91,9 +95,11 @@ result from remaining available after an integrity check fails.
 
 At startup, the worker reconciles the database and disk:
 
-1. Any job left in `processing` after an interrupted run returns to `queued`, clears
-   its progress and transient error, and removes its unpromoted `work/` directory.
-   Reprocessing the same job ID must be safe.
+1. Any job left in `processing` after an interrupted run returns to `queued` once,
+   clears its progress and transient error, and removes its unpromoted `work/`
+   directory. Reprocessing the same job ID must be safe. The attempt count is
+   incremented on each claim; after a second interruption, mark it `failed` with
+   `WORKER_INTERRUPTED` instead of retrying indefinitely.
 2. A queued job whose source file is missing becomes `failed` with a stable
    non-retryable error code. A published result without a matching completed database
    record is not exposed; recovery can either validate and publish it or remove it
@@ -112,7 +118,8 @@ all referenced assets are readable.
 Remove stale `staging/*.part` files and abandoned `work/` directories on startup
 after checking that no live worker owns them. On failure, retain the raw source and
 error metadata for inspection, but remove disposable work files. On success, retain
-the source, manifest, scores, frames, and optional clips for the life of the video;
+the source, manifest, scores, evidence frames, embeddings, and optional clips for
+the life of the video;
 there is no automatic expiry in the local MVP. A future explicit video deletion
 should remove the video directory and its database records as one coordinated
 operation, making the API unavailable first and then deleting files. Do not delete

@@ -118,7 +118,9 @@ Each `samples[].score` and `peaks[].score` is a semantic similarity value from 0
 100, not a calibrated probability or a safety verdict. `peaks[].level` is a display
 category (`low`, `medium`, `high`). Timestamp fields are seconds from the beginning
 of the source video. Consumers should use the server's timestamps rather than infer
-them from sample array positions.
+them from sample array positions. The display buckets and peak-selection rule are
+fixed in [the MVP architecture](architecture.md); clients consume the returned
+`level` and `peaks` rather than recalculating them.
 
 ### `GET /api/v1/videos/{video_id}/source`
 
@@ -163,7 +165,8 @@ repeating a possibly accepted upload.
 The service should map implementation errors to these codes consistently and avoid
 exposing stack traces or local paths. A processing failure recorded in `JobResponse`
 uses the same `ErrorDetail` shape, with `PROCESSING_FAILED` unless a more specific
-stable code is defined. `retryable` is typically `false` for invalid content and
+stable code is defined. A job interrupted twice by worker restarts uses
+`WORKER_INTERRUPTED`. `retryable` is typically `false` for invalid content and
 `true` for transient server failures.
 
 Example `409` response:
