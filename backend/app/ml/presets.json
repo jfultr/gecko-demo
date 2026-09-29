@@ -1,0 +1,18 @@
+{
+  "presets": [
+    {
+      "preset_id": "warehouse-hazards-v1",
+      "label": "Warehouse hazard cues",
+      "positive_prompts": [
+        "A person standing close to a moving forklift",
+        "An object obstructing a warehouse walkway",
+        "A worker near moving industrial machinery"
+      ],
+      "negative_prompts": [
+        "A clear and unobstructed warehouse walkway",
+        "A parked forklift with no people nearby",
+        "Industrial machinery stopped with workers at a safe distance"
+      ]
+    }
+  ]
+}
