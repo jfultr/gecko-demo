@@ -1,6 +1,7 @@
 """Single local worker backed by SQLite. Run from backend: python -m app.worker.
 
-Configure APP_DATA_DIR and APP_PROCESSOR=package.module:function. The callable
+Configure APP_DATA_DIR; APP_PROCESSOR=package.module:function may override the
+default ROB-3 processor. The callable
 accepts ProcessingContext and returns VideoManifest. See app.processing.
 """
 
@@ -191,12 +192,10 @@ def run(settings: Settings, processor: VideoProcessor, poll_seconds: float = 1.0
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run the Gecko video processing worker")
-    parser.add_argument("--processor", default=os.environ.get("APP_PROCESSOR"),
-                        help="ROB-3 callable as package.module:function (or APP_PROCESSOR)")
+    parser.add_argument("--processor", default=os.environ.get("APP_PROCESSOR", "app.ml.processor:process_video"),
+                        help="processor callable as package.module:function (or APP_PROCESSOR)")
     parser.add_argument("--poll-seconds", type=float, default=1.0)
     args = parser.parse_args()
-    if not args.processor:
-        parser.error("--processor or APP_PROCESSOR is required until ROB-3 is integrated")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     try:
         run(Settings.from_env(), load_processor(args.processor), args.poll_seconds)
