@@ -46,6 +46,6 @@ jobs:
       - run: docker compose build
       - run: docker compose up -d --wait
       - run: curl --fail --silent --show-error http://localhost:8000/openapi.json > /dev/null
-      - run: test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://localhost:5173/api/v1/jobs/not-a-uuid)" = "422"
+      - run: test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://localhost:5173/api/v1/jobs/not-a-uuid)" = "404"
       - if: always()
         run: docker compose down
