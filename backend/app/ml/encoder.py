@@ -9,7 +9,7 @@ from .config import ModelConfig
 
 
 class ClipEncoder:
-    preprocessing_revision = "clip-processor-v1"
+    preprocessing_revision = "clip-processor-slow-v1"
 
     def __init__(self, config: ModelConfig):
         self.config = config
@@ -19,7 +19,7 @@ class ClipEncoder:
 
             self._torch = torch
             self._processor = CLIPProcessor.from_pretrained(
-                config.model_id, revision=config.revision
+                config.model_id, revision=config.revision, use_fast=False
             )
             self._model = CLIPModel.from_pretrained(
                 config.model_id, revision=config.revision

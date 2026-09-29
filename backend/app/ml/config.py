@@ -17,7 +17,7 @@ DEFAULT_PRESETS = Path(__file__).with_name("presets.json")
 @dataclass(frozen=True)
 class ModelConfig:
     model_id: str = "openai/clip-vit-base-patch32"
-    revision: str = "main"
+    revision: str = "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"
     device: str = "cpu"
 
     @classmethod
