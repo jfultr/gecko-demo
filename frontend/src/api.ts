@@ -44,10 +44,10 @@ function parseJson(text: string): unknown {
 }
 
 function readUploadResponse(value: unknown): UploadResponse {
-  if (!value || typeof value !== 'object') throw new ApiError('The upload response was invalid.', 'INVALID_RESPONSE')
+  if (!value || typeof value !== 'object') throw new ApiError('The upload was accepted, but its response was invalid. Check before uploading again.', 'INVALID_RESPONSE', true)
   const response = value as Partial<UploadResponse>
   if (typeof response.video_id !== 'string' || typeof response.job_id !== 'string' || response.status !== 'queued') {
-    throw new ApiError('The upload response was invalid.', 'INVALID_RESPONSE')
+    throw new ApiError('The upload was accepted, but its response was invalid. Check before uploading again.', 'INVALID_RESPONSE', true)
   }
   return response as UploadResponse
 }

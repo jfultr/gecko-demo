@@ -106,6 +106,7 @@ export function UploadScreen({ onSubmit, onViewFixture, onSelectionChange, disab
               setIsDragging(false)
               if (disabled) return
               if (event.dataTransfer.files.length !== 1) {
+                onSelectionChange()
                 setFile(null)
                 setError('Choose one video at a time.')
                 return

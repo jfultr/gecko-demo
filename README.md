@@ -14,10 +14,13 @@ docker compose up --build
 
 Open the frontend at <http://localhost:5173/> and the API docs at
 <http://localhost:8000/docs>. The API, worker, and frontend proxy run together.
-The frontend currently opens its review fixture; `/api` requests are proxied to
-the real API for the upload flow being added in ROB-4.
+The frontend opens the upload screen. Drop or select an MP4, MOV, or WebM video,
+then choose **Analyze video**. The screen shows upload transfer progress, followed
+by the queued and processing job states. When the worker completes, the result
+opens in the video review screen. **View demo analysis** opens the fixture without
+uploading a video.
 
-To exercise the backend before the upload UI lands, upload a local video:
+To exercise the backend directly, upload a local video:
 
 ```sh
 curl -F 'file=@/absolute/path/to/video.mp4' http://localhost:8000/api/v1/videos
@@ -36,7 +39,20 @@ minutes. Model files and uploaded videos persist in the `model_cache` and
 keeping those files. `docker compose down -v` also deletes them.
 
 Override the host ports with `FRONTEND_PORT` and `API_PORT`. The upload size
-limit can be changed with `APP_MAX_UPLOAD_BYTES`.
+limit can be changed with `APP_MAX_UPLOAD_BYTES`; Compose passes the same limit
+to the frontend for early validation. The API remains authoritative for video
+format and content validation. A failed processing job displays the worker's
+error and lets the user start a new analysis.
+
+To repeat the API path through the frontend proxy with the bundled demo video:
+
+```sh
+python scripts/smoke_upload_flow.py --base-url http://localhost:5173
+```
+
+The smoke check verifies a structured invalid-format response, upload acceptance,
+job completion, manifest retrieval, and video playback bytes. Allow extra time on
+the first run while the worker downloads its model.
 
 ## Checks
 

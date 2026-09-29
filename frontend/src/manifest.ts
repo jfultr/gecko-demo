@@ -7,7 +7,7 @@ function isNumberInRange(value: unknown, min: number, max: number) {
 
 export function parseManifest(value: unknown): VideoManifest {
   if (!value || typeof value !== 'object') {
-    throw new Error('The analysis fixture is not an object.')
+    throw new Error('The analysis result is not an object.')
   }
 
   const manifest = value as Partial<VideoManifest>
@@ -19,13 +19,13 @@ export function parseManifest(value: unknown): VideoManifest {
     manifest.score_range?.[0] !== 0 ||
     manifest.score_range?.[1] !== 100
   ) {
-    throw new Error('The fixture uses an unsupported score contract.')
+    throw new Error('The analysis result uses an unsupported score contract.')
   }
   if (!manifest.video || !isNumberInRange(manifest.video.duration_seconds, 0.001, Infinity)) {
-    throw new Error('The fixture has invalid video metadata.')
+    throw new Error('The analysis result has invalid video metadata.')
   }
   if (!Array.isArray(manifest.samples)) {
-    throw new Error('The fixture has no score samples.')
+    throw new Error('The analysis result has no score samples.')
   }
   const invalidSample = manifest.samples.some(
     (sample) =>
@@ -33,7 +33,7 @@ export function parseManifest(value: unknown): VideoManifest {
       !isNumberInRange(sample.score, 0, 100),
   )
   if (invalidSample) {
-    throw new Error('The fixture contains an invalid score sample.')
+    throw new Error('The analysis result contains an invalid score sample.')
   }
 
   return {

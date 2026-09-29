@@ -48,6 +48,10 @@ export function JobScreen({ accepted, onComplete, onStartNew }: {
         timer = setTimeout(poll, retryAfter ?? 1500)
       } catch (error) {
         if (controller.signal.aborted) return
+        if (error instanceof ApiError && (error.code === 'INVALID_RESPONSE' || error.code === 'NOT_FOUND')) {
+          setResultError(error.message)
+          return
+        }
         failures += 1
         setConnectionError(error instanceof Error ? error.message : 'Could not reach the analysis service.')
         timer = setTimeout(poll, Math.min(30000, 1500 * 2 ** Math.min(failures, 4)))
@@ -80,7 +84,7 @@ export function JobScreen({ accepted, onComplete, onStartNew }: {
           </div>
         )}
         {connectionError && !failed && <p className="job-warning" role="status">Connection issue: {connectionError} Retrying automatically…</p>}
-        {resultError && <div className="job-warning" role="alert"><p>{resultError}</p><button type="button" onClick={() => { setResultError(null); setRetryKey((key) => key + 1) }}><RotateCcw size={15} /> Retry opening result</button></div>}
+        {resultError && <div className="job-warning" role="alert"><p>{resultError}</p><button type="button" onClick={() => { setResultError(null); setRetryKey((key) => key + 1) }}><RotateCcw size={15} /> Try again</button></div>}
         <p className="job-id">Job {accepted.job_id}</p>
         {(failed || resultError) && <button className="job-new-button" type="button" onClick={onStartNew}>Start a new analysis</button>}
       </section>

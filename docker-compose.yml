@@ -46,6 +46,7 @@ services:
       dockerfile: frontend/Dockerfile
     environment:
       VITE_API_TARGET: http://api:8000
+      VITE_MAX_UPLOAD_BYTES: ${APP_MAX_UPLOAD_BYTES:-2147483648}
     command: ["sh", "-c", "npm ci && npm run dev -- --host 0.0.0.0"]
     ports:
       - "${FRONTEND_PORT:-5173}:5173"

@@ -186,7 +186,7 @@ function ReviewScreen({ manifest, onBack, isFixture }: { manifest: VideoManifest
   const [reloadKey, setReloadKey] = useState(0)
   const activeSample = useMemo(
     () => nearestSample(manifest.samples, currentTime) ?? { timestamp_seconds: 0, score: 0 },
-    [currentTime],
+    [currentTime, manifest.samples],
   )
 
   async function togglePlayback() {
