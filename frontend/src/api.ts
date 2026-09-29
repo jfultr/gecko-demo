@@ -71,7 +71,10 @@ export function uploadVideo(file: File, onProgress: (percent: number | null) => 
         return
       }
       const detail = getErrorDetail(body)
-      reject(new ApiError(detail?.message ?? `Upload failed (HTTP ${request.status}).`, detail?.code ?? 'UPLOAD_FAILED'))
+      const fallback = request.status === 404
+        ? 'The upload API was not found. Check the frontend /api proxy target and restart Vite.'
+        : `Upload failed (HTTP ${request.status}).`
+      reject(new ApiError(detail?.message ?? fallback, detail?.code ?? 'UPLOAD_FAILED'))
     }
     request.onerror = () => reject(new ApiError(
       'The connection was interrupted. The server may have accepted this upload; check before uploading the file again.',

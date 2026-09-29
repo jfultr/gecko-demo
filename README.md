@@ -44,6 +44,12 @@ to the frontend for early validation. The API remains authoritative for video
 format and content validation. A failed processing job displays the worker's
 error and lets the user start a new analysis.
 
+If you also run `npm run dev` separately on port 5173, that session needs its
+own API proxy target. Its default is `http://127.0.0.1:8000`; when Compose
+publishes the Gecko API on another port, set `VITE_API_TARGET` in
+`frontend/.env.local` to that origin and restart Vite. Open the Compose frontend
+on the port specified by `FRONTEND_PORT`.
+
 To repeat the API path through the frontend proxy with the bundled demo video:
 
 ```sh

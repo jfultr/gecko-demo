@@ -3,6 +3,8 @@ __pycache__/
 node_modules/
 frontend/dist/
 *.tsbuildinfo
+frontend/.env.local
+frontend/.env.*.local
 
 # The vendored UI skill only needs its runtime files in this repository.
 .agents/skills/ui-ux-pro-max/scripts/tests/
