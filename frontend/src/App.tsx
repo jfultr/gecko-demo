@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
@@ -14,6 +14,9 @@ import {
 } from 'lucide-react'
 import { demoManifest, resolvePreviewMedia } from './manifest'
 import type { RiskSample, ScoreLevel } from './types'
+import { ApiError, uploadVideo } from './api'
+import type { UploadResponse } from './api'
+import { UploadScreen } from './UploadScreen'
 
 const manifest = demoManifest
 
@@ -175,7 +178,7 @@ function ScoreGauge({ score }: { score: number }) {
   )
 }
 
-export default function App() {
+function ReviewScreen({ onBack }: { onBack: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [currentTime, setCurrentTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -210,7 +213,7 @@ export default function App() {
           <span>Gecko<span>Vision</span></span>
         </a>
         <div className="context-path" aria-label="Current page"><span>Analysis</span><ChevronRight size={14} /><strong>Video review</strong></div>
-        <div className="fixture-pill"><Sparkles size={13} aria-hidden="true" /> Fixture preview</div>
+        <button className="fixture-pill fixture-link" type="button" onClick={onBack}><Sparkles size={13} aria-hidden="true" /> New analysis</button>
       </header>
 
       <div className="page" id="top">
@@ -288,4 +291,48 @@ export default function App() {
       </div>
     </main>
   )
+}
+
+export default function App() {
+  const [view, setView] = useState<'upload' | 'accepted' | 'fixture'>('upload')
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
+  const [uploadError, setUploadError] = useState<ApiError | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [accepted, setAccepted] = useState<UploadResponse | null>(null)
+  const currentUpload = useRef<ReturnType<typeof uploadVideo> | null>(null)
+
+  useEffect(() => () => currentUpload.current?.abort(), [])
+
+  async function startUpload(file: File) {
+    setUploadError(null)
+    setAccepted(null)
+    setUploadProgress(null)
+    setIsUploading(true)
+    const request = uploadVideo(file, setUploadProgress)
+    currentUpload.current = request
+    try {
+      const result = await request.promise
+      setAccepted(result)
+      setView('accepted')
+    } catch (error) {
+      setUploadError(error instanceof ApiError ? error : new ApiError('The upload could not be completed.', 'UPLOAD_FAILED'))
+    } finally {
+      currentUpload.current = null
+      setIsUploading(false)
+    }
+  }
+
+  if (view === 'fixture') return <ReviewScreen onBack={() => setView('upload')} />
+  if (view === 'accepted' && accepted) {
+    return (
+      <main className="app-shell job-page">
+        <div className="job-card" role="status">
+          <span className="spinner" aria-hidden="true" />
+          <h1>Video uploaded</h1>
+          <p>Your analysis job is queued. Job {accepted.job_id}</p>
+        </div>
+      </main>
+    )
+  }
+  return <UploadScreen onSubmit={startUpload} onViewFixture={() => setView('fixture')} onSelectionChange={() => setUploadError(null)} disabled={isUploading} uploadProgress={uploadProgress} uploadError={uploadError} />
 }

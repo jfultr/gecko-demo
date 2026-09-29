@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ArrowUpFromLine, FileVideo2, RotateCcw, Sparkles, X } from 'lucide-react'
+import type { ApiError } from './api'
 
 const DEFAULT_MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024
 const configuredLimit = Number(import.meta.env.VITE_MAX_UPLOAD_BYTES)
@@ -26,9 +27,13 @@ export function validateVideoFile(file: File): string | null {
   return null
 }
 
-export function UploadScreen({ onSubmit, disabled = false }: {
+export function UploadScreen({ onSubmit, onViewFixture, onSelectionChange, disabled = false, uploadProgress, uploadError }: {
   onSubmit: (file: File) => void
+  onViewFixture: () => void
+  onSelectionChange: () => void
   disabled?: boolean
+  uploadProgress: number | null
+  uploadError: ApiError | null
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -36,6 +41,7 @@ export function UploadScreen({ onSubmit, disabled = false }: {
   const [isDragging, setIsDragging] = useState(false)
 
   function chooseFile(candidate: File | null) {
+    onSelectionChange()
     setError(null)
     setFile(null)
     if (!candidate) return
@@ -48,6 +54,7 @@ export function UploadScreen({ onSubmit, disabled = false }: {
   }
 
   function clearFile() {
+    onSelectionChange()
     setFile(null)
     setError(null)
     if (inputRef.current) inputRef.current.value = ''
@@ -61,7 +68,7 @@ export function UploadScreen({ onSubmit, disabled = false }: {
           <span className="brand-mark"><FileVideo2 size={19} aria-hidden="true" /></span>
           <span>Gecko<span>Vision</span></span>
         </a>
-        <span className="fixture-pill"><Sparkles size={13} aria-hidden="true" /> New analysis</span>
+        <button className="fixture-pill fixture-link" type="button" onClick={onViewFixture} disabled={disabled}><Sparkles size={13} aria-hidden="true" /> View demo analysis</button>
       </header>
       <div className="upload-page" id="top">
         <div className="upload-intro">
@@ -81,10 +88,13 @@ export function UploadScreen({ onSubmit, disabled = false }: {
             id="video-file"
             type="file"
             accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm"
-            aria-describedby={error ? 'upload-error' : 'upload-hint'}
-            aria-invalid={Boolean(error)}
+            aria-describedby={error ? 'upload-error' : uploadError ? 'upload-api-error' : 'upload-hint'}
+            aria-invalid={Boolean(error || uploadError)}
             disabled={disabled}
-            onChange={(event) => chooseFile(event.currentTarget.files?.[0] ?? null)}
+            onChange={(event) => {
+              chooseFile(event.currentTarget.files?.[0] ?? null)
+              event.currentTarget.value = ''
+            }}
           />
           <label
             className={`upload-dropzone${isDragging ? ' is-dragging' : ''}${error ? ' has-error' : ''}${disabled ? ' is-disabled' : ''}`}
@@ -109,6 +119,7 @@ export function UploadScreen({ onSubmit, disabled = false }: {
           </label>
           <p className="upload-hint" id="upload-hint">Your video is stored locally for analysis. Semantic scores are not a safety assessment.</p>
           {error && <p className="upload-error" id="upload-error" role="alert">{error}</p>}
+          {uploadError && <p className="upload-error" id="upload-api-error" role="alert">{uploadError.message}{uploadError.uncertainUpload ? ' Select Analyze video only if you want to upload it again.' : ''}</p>}
           {file && (
             <div className="selected-file">
               <FileVideo2 size={20} aria-hidden="true" />
@@ -116,8 +127,14 @@ export function UploadScreen({ onSubmit, disabled = false }: {
               <button type="button" onClick={clearFile} aria-label="Remove selected video"><X size={18} /></button>
             </div>
           )}
+          {disabled && (
+            <div className="upload-progress" role="progressbar" aria-label="Video upload" aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadProgress ?? undefined}>
+              <span><strong>Uploading video</strong><small>{uploadProgress === null ? 'Preparing transfer…' : `${uploadProgress}%`}</small></span>
+              <div className="upload-progress-track"><div className={uploadProgress === null ? 'upload-progress-fill indeterminate' : 'upload-progress-fill'} style={uploadProgress === null ? undefined : { width: `${uploadProgress}%` }} /></div>
+            </div>
+          )}
           <button className="upload-submit" type="button" disabled={!file || disabled} onClick={() => file && onSubmit(file)}>
-            Analyze video <RotateCcw size={16} aria-hidden="true" />
+            {disabled ? 'Uploading…' : uploadError?.uncertainUpload ? 'Upload again' : 'Analyze video'} <RotateCcw size={16} aria-hidden="true" />
           </button>
         </section>
       </div>

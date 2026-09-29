@@ -182,3 +182,18 @@ footer { display: flex; justify-content: space-between; gap: 16px; color: #4f596
 .upload-submit { min-height: 48px; width: 100%; margin-top: 20px; border: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--green); color: #09140e; font-weight: 700; }
 .upload-submit:hover:not(:disabled) { background: #64e7a3; }
 @media (max-width: 600px) { .upload-page { width: calc(100% - 24px); padding-top: 46px; } .upload-intro { margin-bottom: 24px; } .upload-dropzone { min-height: 210px; } }
+.fixture-link { font: inherit; cursor: pointer; }
+.fixture-link:hover:not(:disabled) { border-color: var(--green); color: #fff; }
+.upload-progress { margin-top: 20px; }
+.upload-progress > span { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; font-size: 12px; }
+.upload-progress strong { color: #eef3f6; }
+.upload-progress small { color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.upload-progress-track { height: 8px; border-radius: 999px; overflow: hidden; background: #2a323d; }
+.upload-progress-fill { height: 100%; border-radius: inherit; background: var(--green); transition: width .12s ease; }
+.upload-progress-fill.indeterminate { width: 35%; animation: progress-slide 1.3s ease-in-out infinite alternate; }
+@keyframes progress-slide { from { transform: translateX(-100%); } to { transform: translateX(280%); } }
+.job-page { display: grid; place-items: center; padding: 24px; }
+.job-card { width: min(500px, 100%); border: 1px solid var(--line); border-radius: 18px; background: var(--panel); padding: 36px; text-align: center; }
+.job-card .spinner { display: inline-block; }
+.job-card h1 { font-size: 28px; margin-top: 20px; }
+.job-card p { color: var(--muted); line-height: 1.5; overflow-wrap: anywhere; }
