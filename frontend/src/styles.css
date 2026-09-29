@@ -197,3 +197,14 @@ footer { display: flex; justify-content: space-between; gap: 16px; color: #4f596
 .job-card .spinner { display: inline-block; }
 .job-card h1 { font-size: 28px; margin-top: 20px; }
 .job-card p { color: var(--muted); line-height: 1.5; overflow-wrap: anywhere; }
+.job-card { text-align: left; }
+.job-icon { width: 54px; height: 54px; margin-bottom: 23px; display: grid; place-items: center; border-radius: 15px; color: var(--green); background: rgba(57, 217, 138, .11); }
+.job-icon.is-error { color: var(--red); background: rgba(255, 99, 95, .11); }
+.job-card h1 { margin: 9px 0 10px; }
+.job-progress { margin: 28px 0 10px; }
+.job-progress small { display: block; margin-top: 9px; color: var(--muted); font: 11px/1.5 'JetBrains Mono', monospace; }
+.job-warning { border: 1px solid rgba(242, 184, 75, .32); border-radius: 10px; background: rgba(242, 184, 75, .08); color: #f5d08b !important; padding: 11px 13px; font-size: 12px; }
+.job-warning p { color: inherit; margin-bottom: 12px; }
+.job-warning button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; border: 1px solid rgba(242, 184, 75, .4); background: transparent; color: #f5d08b; border-radius: 7px; padding: 0 11px; }
+.job-id { padding-top: 18px; border-top: 1px solid var(--line); color: var(--subtle) !important; font: 10px/1.5 'JetBrains Mono', monospace; }
+.job-new-button { min-height: 44px; border: 1px solid var(--line); color: #eef2f6; background: var(--panel-raised); border-radius: 9px; padding: 0 16px; }

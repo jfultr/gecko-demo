@@ -17,8 +17,8 @@ import type { RiskSample, ScoreLevel } from './types'
 import { ApiError, uploadVideo } from './api'
 import type { UploadResponse } from './api'
 import { UploadScreen } from './UploadScreen'
-
-const manifest = demoManifest
+import { JobScreen } from './JobScreen'
+import type { VideoManifest } from './types'
 
 function formatTime(value: number) {
   const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0
@@ -147,7 +147,7 @@ function Timeline({
         </div>
       </div>
       <div className="time-axis" aria-hidden="true">
-        <span>00:00</span><span>00:15</span><span>00:30</span><span>00:45</span><span>01:00</span>
+        {[0, 1, 2, 3, 4].map((step) => <span key={step}>{formatTime((duration * step) / 4)}</span>)}
       </div>
     </section>
   )
@@ -178,7 +178,7 @@ function ScoreGauge({ score }: { score: number }) {
   )
 }
 
-function ReviewScreen({ onBack }: { onBack: () => void }) {
+function ReviewScreen({ manifest, onBack, isFixture }: { manifest: VideoManifest; onBack: () => void; isFixture: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [currentTime, setCurrentTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -219,11 +219,11 @@ function ReviewScreen({ onBack }: { onBack: () => void }) {
       <div className="page" id="top">
         <div className="page-heading">
           <div>
-            <span className="eyebrow">Review session · GV–001</span>
-            <h1>Warehouse walkthrough</h1>
+            <span className="eyebrow">Review session · {isFixture ? 'Fixture preview' : manifest.video.video_id.slice(0, 8)}</span>
+            <h1>{isFixture ? 'Warehouse walkthrough' : manifest.video.filename}</h1>
             <p>Inspect semantic similarity across the processed video timeline.</p>
           </div>
-          <div className="analysis-state"><span><Check size={13} /></span><div><strong>Analysis complete</strong><small>13 samples · v{manifest.schema_version}</small></div></div>
+          <div className="analysis-state"><span><Check size={13} /></span><div><strong>Analysis complete</strong><small>{manifest.samples.length} samples · v{manifest.schema_version}</small></div></div>
         </div>
 
         <div className="review-grid">
@@ -237,7 +237,7 @@ function ReviewScreen({ onBack }: { onBack: () => void }) {
                 key={reloadKey}
                 ref={videoRef}
                 src={resolvePreviewMedia(manifest.video.source_url)}
-                poster="/demo/warehouse-poster.svg"
+                poster={isFixture ? '/demo/warehouse-poster.svg' : undefined}
                 preload="metadata"
                 controls
                 onLoadedMetadata={() => setMediaStatus('ready')}
@@ -248,18 +248,18 @@ function ReviewScreen({ onBack }: { onBack: () => void }) {
                 onPause={() => setIsPlaying(false)}
                 onEnded={() => setIsPlaying(false)}
                 onError={() => setMediaStatus('error')}
-                aria-label="Warehouse walkthrough fixture preview"
+                aria-label={`${manifest.video.filename} video preview`}
               />
               {mediaStatus === 'loading' && <div className="video-overlay" role="status"><span className="spinner" />Loading preview video…</div>}
               {mediaStatus === 'error' && (
                 <div className="video-overlay video-error" role="status">
                   <AlertTriangle size={26} aria-hidden="true" />
                   <strong>Preview video unavailable</strong>
-                  <span>Expected /demo/warehouse-walkthrough.mp4</span>
+                  <span>Check the video source and try again.</span>
                   <button onClick={() => { setMediaStatus('loading'); setReloadKey((key) => key + 1) }}><RotateCcw size={15} />Reload media</button>
                 </div>
               )}
-              <div className="video-watermark" aria-hidden="true">Fixture preview</div>
+              {isFixture && <div className="video-watermark" aria-hidden="true">Fixture preview</div>}
             </div>
 
             <div className="custom-controls">
@@ -277,7 +277,7 @@ function ReviewScreen({ onBack }: { onBack: () => void }) {
               <div className="section-heading compact"><div><span className="eyebrow">Analysis setup</span><h2>Review context</h2></div></div>
               <dl className="details-list">
                 <div><dt><Clock3 size={15} />Duration</dt><dd>{formatTime(manifest.video.duration_seconds)}</dd></div>
-                <div><dt><Activity size={15} />Sample rate</dt><dd>Every 5 sec</dd></div>
+                <div><dt><Activity size={15} />Samples</dt><dd>{manifest.samples.length} observations</dd></div>
                 <div><dt><Sparkles size={15} />Preset</dt><dd>{manifest.preset.label}</dd></div>
               </dl>
               <div className="prompt-summary"><span>Positive prompts</span><strong>{manifest.preset.positive_prompts.length}</strong></div>
@@ -294,11 +294,12 @@ function ReviewScreen({ onBack }: { onBack: () => void }) {
 }
 
 export default function App() {
-  const [view, setView] = useState<'upload' | 'accepted' | 'fixture'>('upload')
+  const [view, setView] = useState<'upload' | 'accepted' | 'review' | 'fixture'>('upload')
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const [uploadError, setUploadError] = useState<ApiError | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [accepted, setAccepted] = useState<UploadResponse | null>(null)
+  const [resultManifest, setResultManifest] = useState<VideoManifest | null>(null)
   const currentUpload = useRef<ReturnType<typeof uploadVideo> | null>(null)
 
   useEffect(() => () => currentUpload.current?.abort(), [])
@@ -322,17 +323,10 @@ export default function App() {
     }
   }
 
-  if (view === 'fixture') return <ReviewScreen onBack={() => setView('upload')} />
+  if (view === 'fixture') return <ReviewScreen manifest={demoManifest} isFixture onBack={() => setView('upload')} />
+  if (view === 'review' && resultManifest) return <ReviewScreen manifest={resultManifest} isFixture={false} onBack={() => setView('upload')} />
   if (view === 'accepted' && accepted) {
-    return (
-      <main className="app-shell job-page">
-        <div className="job-card" role="status">
-          <span className="spinner" aria-hidden="true" />
-          <h1>Video uploaded</h1>
-          <p>Your analysis job is queued. Job {accepted.job_id}</p>
-        </div>
-      </main>
-    )
+    return <JobScreen accepted={accepted} onComplete={(manifest) => { setResultManifest(manifest); setView('review') }} onStartNew={() => setView('upload')} />
   }
   return <UploadScreen onSubmit={startUpload} onViewFixture={() => setView('fixture')} onSelectionChange={() => setUploadError(null)} disabled={isUploading} uploadProgress={uploadProgress} uploadError={uploadError} />
 }
