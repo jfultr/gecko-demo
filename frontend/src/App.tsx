@@ -282,7 +282,7 @@ function ReviewScreen({ manifest, onBack, isFixture }: { manifest: VideoManifest
         </div>
 
         <Timeline samples={manifest.samples} duration={manifest.video.duration_seconds} currentTime={currentTime} onSeek={seek} />
-        <PeakNavigator peaks={manifest.peaks} currentTime={currentTime} canSeek={mediaStatus === 'ready'} onSeek={seek} />
+        <PeakNavigator peaks={manifest.peaks} presetLabel={manifest.preset.label} isFixture={isFixture} currentTime={currentTime} canSeek={mediaStatus === 'ready'} onSeek={seek} />
         <footer><span>Generated {new Date(manifest.generated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span><span>Manifest {manifest.schema_version} · {manifest.samples.length} observations</span></footer>
       </div>
     </main>
