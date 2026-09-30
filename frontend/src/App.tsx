@@ -13,19 +13,14 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { demoManifest, resolvePreviewMedia } from './manifest'
+import { formatTime } from './format'
+import { PeakNavigator } from './PeakNavigator'
 import type { RiskSample, ScoreLevel } from './types'
 import { ApiError, uploadVideo } from './api'
 import type { UploadResponse } from './api'
 import { UploadScreen } from './UploadScreen'
 import { JobScreen } from './JobScreen'
 import type { VideoManifest } from './types'
-
-function formatTime(value: number) {
-  const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0
-  const minutes = Math.floor(safeValue / 60)
-  const seconds = Math.floor(safeValue % 60)
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-}
 
 function nearestSample(samples: RiskSample[], currentTime: number) {
   return samples.reduce<RiskSample | undefined>((nearest, sample) => {
@@ -287,6 +282,7 @@ function ReviewScreen({ manifest, onBack, isFixture }: { manifest: VideoManifest
         </div>
 
         <Timeline samples={manifest.samples} duration={manifest.video.duration_seconds} currentTime={currentTime} onSeek={seek} />
+        <PeakNavigator peaks={manifest.peaks} currentTime={currentTime} canSeek={mediaStatus === 'ready'} onSeek={seek} />
         <footer><span>Generated {new Date(manifest.generated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span><span>Manifest {manifest.schema_version} · {manifest.samples.length} observations</span></footer>
       </div>
     </main>
