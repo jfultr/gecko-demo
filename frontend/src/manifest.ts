@@ -48,3 +48,9 @@ export function resolvePreviewMedia(sourceUrl: string) {
   const fixtureRoute = `/api/v1/videos/${demoManifest.video.video_id}/source`
   return sourceUrl === fixtureRoute ? '/demo/warehouse-walkthrough.mp4' : sourceUrl
 }
+
+export function resolveEvidenceMedia(imageUrl: string, isFixture: boolean) {
+  if (!isFixture) return imageUrl
+  const fixturePeak = demoManifest.peaks.find((peak) => peak.frame.image_url === imageUrl)
+  return fixturePeak ? `/demo/frames/${fixturePeak.frame.frame_id}.jpg` : imageUrl
+}
